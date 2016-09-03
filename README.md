@@ -22,7 +22,7 @@ go get -u github.com/tidwall/collate
 Example
 -------
 ```go
-// create a case-insensitive collation for french.
+// create a case-insensitive collation for spanish.
 less := collate.Index("SPANISH_CI")
 println(less("Hola", "hola"))
 

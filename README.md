@@ -22,11 +22,12 @@ go get -u github.com/tidwall/collate
 Example
 -------
 ```go
-// create a case-insensitive collation for spanish.
-less := collate.Index("SPANISH_CI")
+// create a case-insensitive collation for french.
+less := collate.IndexString("SPANISH_CI")
 println(less("Hola", "hola"))
-
-// Output
+println(less("hola", "Hola"))
+// Output:
+// false
 // false
 ```
 
@@ -34,8 +35,7 @@ Options
 -------
 
 ### Case Sensitivity
-
-Add `_CI` to the collation name to specify case-insensitive comparing.
+Add `_CI` to the collation name to specify case-insensitive comparing.  
 Add `_CS` for case-sensitive compares, this is the default.
 
 ```go
@@ -44,12 +44,25 @@ collate.Index("SPANISH_CS") // Case-sensitive collation for spanish
 ```
 
 ### Loose Compares
-
 Add `_LOOSE` to ignores diacritics, case and weight.
 
 ### Numeric Compares
-
 Add `_NUM` to specifies that numbers should sort numerically ("2" < "12")
+
+### JSON
+You can also compare fields in json documents using the `IndexJSON` function.
+The [GJSON](https://github.com/tidwall/gjson) is used under-the-hood.
+
+```go
+var jsonA = `{"name":{"last":"Miller"}}`
+var jsonB = `{"name":{"last":"anderson"}}`
+less := collate.IndexJSON("ENGLISH_CI", "name.last")
+println(less(jsonA, jsonB))
+println(less(jsonB, jsonA))
+// Output:
+// false
+// true
+```
 
 Supported Languages
 -------------------

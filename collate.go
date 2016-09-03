@@ -4,6 +4,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/tidwall/gjson"
+
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 )
@@ -18,7 +20,7 @@ func SupportedLangs() []string {
 	return langs
 }
 
-// Index returns a Less function that can be used to compare if
+// IndexString returns a Less function that can be used to compare if
 // string "a" is less than string "b".
 // The "name" parameter should be a valid collate definition.
 //
@@ -59,11 +61,33 @@ func SupportedLangs() []string {
 //   CHINESE_LOOSE
 //   ...
 //
-func Index(name string) (less func(a, b string) bool) {
+func IndexString(name string) (less func(a, b string) bool) {
 	t, opts := parseCollation(name)
 	c := collate.New(t, opts...)
 	return func(a, b string) bool {
 		return c.CompareString(a, b) == -1
+	}
+}
+
+func IndexJSON(name, path string) (less func(a, b string) bool) {
+	t, opts := parseCollation(name)
+	c := collate.New(t, opts...)
+	return func(a, b string) bool {
+		ra := gjson.Get(a, path)
+		rb := gjson.Get(b, path)
+		if ra.Type < rb.Type {
+			return true
+		}
+		if ra.Type > rb.Type {
+			return false
+		}
+		if ra.Type == gjson.String {
+			return c.CompareString(a, b) == -1
+		}
+		if ra.Type == gjson.Number {
+			return ra.Num < rb.Num
+		}
+		return ra.Raw < rb.Raw
 	}
 }
 

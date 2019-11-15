@@ -10,8 +10,8 @@ is simliar to the
 found in traditional database systems
 
 The idea is that you call a function with a collation name and it generates 
-a `Less(a, b string) bool` function that can be used for sorting in B-Tree 
-style databases.
+a `Less(a, b string) bool` function that can be used for sorting using the 
+`sort` package or with B-Tree style databases.
 
 Install
 -------
@@ -149,15 +149,11 @@ Vietnamese
 Zulu
 ```
 
-
-
-
-
 ## Contact
 Josh Baker [@tidwall](http://twitter.com/tidwall)
 
 ## License
 
-GJSON source code is available under the MIT [License](/LICENSE).
+Collate source code is available under the MIT [License](/LICENSE).
 
 

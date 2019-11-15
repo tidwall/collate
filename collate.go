@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/tidwall/gjson"
-
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 )
@@ -69,25 +68,19 @@ func IndexString(name string) (less func(a, b string) bool) {
 	}
 }
 
+// IndexJSON is like IndexString expect for json.
+// The "name" parameter should be a valid collate definition.
+// The "path" parameter should be a valid gjson path.
 func IndexJSON(name, path string) (less func(a, b string) bool) {
 	t, opts := parseCollation(name)
 	c := collate.New(t, opts...)
 	return func(a, b string) bool {
 		ra := gjson.Get(a, path)
 		rb := gjson.Get(b, path)
-		if ra.Type < rb.Type {
-			return true
+		if ra.Type == gjson.String || rb.Type == gjson.String {
+			return c.CompareString(ra.String(), rb.String()) < 0
 		}
-		if ra.Type > rb.Type {
-			return false
-		}
-		if ra.Type == gjson.String {
-			return c.CompareString(a, b) == -1
-		}
-		if ra.Type == gjson.Number {
-			return ra.Num < rb.Num
-		}
-		return ra.Raw < rb.Raw
+		return ra.Less(rb, false)
 	}
 }
 
@@ -112,7 +105,7 @@ func parseCollation(s string) (tag language.Tag, opts []collate.Option) {
 			opts = append(opts, collate.Loose)
 		}
 	}
-	return
+	return tag, opts
 }
 
 type tlang struct {
